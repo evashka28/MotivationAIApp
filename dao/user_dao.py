@@ -10,6 +10,10 @@ class UserDAO(BaseDAO):
         """Получить пользователя по имени."""
         return self.session.query(User).filter_by(username=username).first()
 
+    def get_by_email(self, email: str):
+        """Получить пользователя по email."""
+        return self.session.query(User).filter_by(email=email).first()
+
     def get_all_users(self):
         """Получить всех пользователей."""
         return self.session.query(User).all()
