@@ -52,9 +52,9 @@ def login(email: str, password: str, db: Session = Depends(get_db)):
 
 
 @app.post("/habits/", response_model=dict)
-def create_habit(name: str, description: str, user_id: int, repeat: str, db: Session = Depends(get_db)):
+def create_habit(name: str, description: str, user_id: int, repeat: str, difficulty: int, db: Session = Depends(get_db)):
     habit_dao = HabitDAO(db)
-    new_habit = Habit(name=name, description=description, user_id=user_id, repeat=repeat)
+    new_habit = Habit(name=name, description=description, user_id=user_id, repeat=repeat, difficulty=difficulty)
     habit_dao.add(new_habit)
     return {"id": new_habit.id, "name": new_habit.name}
 
@@ -88,18 +88,24 @@ def get_habits_by_user_id(user_id: int, db: Session = Depends(get_db)):
 @app.post("/events/", response_model=dict)
 def create_event(habit_id: int, db: Session = Depends(get_db)):
     event_dao = EventDAO(db)
-    new_event = Event(habit_id=habit_id)
-    event_dao.add(new_event)
-
-    # Обновление опыта персонажа при выполнении задания
     habit_dao = HabitDAO(db)
     habit = habit_dao.get_by_id(Habit, habit_id)
+
+    if not event_dao.can_register_event(habit):
+        return {"success": False, "message": "Нельзя выполнить привычку чаще, чем задано"}
+
+    new_event = Event(habit_id=habit_id)
+    event_dao.add_event(new_event)
+
     character_dao = CharacterDAO(db)
     character = character_dao.get_by_user_id(habit.user_id)
-    if character:
-        character_dao.update_experience(character.id, 5)  # Например, за выполнение задания дается 10 опыта
 
-    return {"id": new_event.id, "execution_time": new_event.execution_time}
+    experience_gain = 5 * habit.difficulty  # 1 -> 5, 2 -> 10, 3 -> 15
+
+    if character:
+        character_dao.update_experience(character.id, experience_gain)
+
+    return {"success": True, "id": new_event.id, "execution_time": new_event.execution_time}
 
 
 @app.get("/events/{habit_id}", response_model=list)

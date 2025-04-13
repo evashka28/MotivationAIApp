@@ -11,7 +11,8 @@ class Habit(Base):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     name = Column(String())
     description = Column(String())
-    repeat = Column(String())  # это Enum должен быть
+    repeat = Column(String())  # ежедневная, 3 раза в неделю и т.п.
+    difficulty = Column(Integer, default=1)  # Новое поле сложности
     create_at = Column(DateTime, default=func.now())
 
     user = relationship('User', back_populates='habits')
