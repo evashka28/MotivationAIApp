@@ -77,6 +77,22 @@ class EventDAO(BaseDAO):
 
         return True
 
+    def get_current_period_event_count(self, habit: Habit) -> int:
+        today = date.today()
+        query = self.session.query(Event).filter(Event.habit_id == habit.id)
+
+        repeat = habit.repeat.lower()
+
+        if "в день" in repeat:
+            return query.filter(func.date(Event.execution_time) == today).count()
+        elif "в неделю" in repeat:
+            start_of_week = today - timedelta(days=today.weekday())
+            return query.filter(Event.execution_time >= start_of_week).count()
+        elif "в месяц" in repeat:
+            start_of_month = today.replace(day=1)
+            return query.filter(Event.execution_time >= start_of_month).count()
+        return 0
+
     def add_event(self, event):
         self.session.add(event)
         self.session.commit()

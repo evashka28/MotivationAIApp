@@ -1,4 +1,4 @@
-from openai import OpenAI
+'''from openai import OpenAI
 from core.conf import OPENAI_API_KEY
 from services.startapp import tmp_path
 
@@ -22,4 +22,4 @@ def text_to_speech(text):
         speed=1.0,
     )
     path = tmp_path + "openai-output.mp3"
-    response.stream_to_file(path)
+    response.stream_to_file(path)'''
