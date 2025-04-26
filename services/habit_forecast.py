@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from prophet import Prophet
 from models import Event, Habit
 from services.giga_client import GigaChatClient
+from core.conf import GIGACHAT_CLIENT_ID, GIGACHAT_CLIENT_SECRET
 
 
 class HabitTimeSeriesBuilder:
@@ -58,17 +59,16 @@ class HabitFailurePredictor:
 
 
 class HabitForecastService:
-    def __init__(self, session: Session, decline_threshold: float = 0.3, client_id: str = None, client_secret: str = None):
-        print(f"[DEBUG] client_id={client_id}, client_secret={client_secret}")
+    def __init__(self, session: Session, decline_threshold: float = 0.3):
         self.session = session
         self.builder = HabitTimeSeriesBuilder(session)
         self.predictor = HabitFailurePredictor()
         self.decline_threshold = decline_threshold
-        if client_id and client_secret:
-            print("[DEBUG] Creating GigaChatClient with:", client_id, client_secret)
-            self.giga = GigaChatClient(client_id, client_secret)
-        else:
-            print("[DEBUG] GigaChatClient not created (no credentials)")
+        try:
+            print("[DEBUG] Creating GigaChatClient")
+            self.giga = GigaChatClient()
+        except ValueError as e:
+            print(f"[DEBUG] GigaChatClient not created: {e}")
             self.giga = None
 
     def get_habit_info(self, habit_id: int):

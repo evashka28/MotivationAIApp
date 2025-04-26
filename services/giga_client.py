@@ -1,27 +1,22 @@
 import base64
 import uuid
-
 import requests
 import urllib3
+from core.conf import CLIENT_ID, CLIENT_SECRET
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class GigaChatClient:
-    def __init__(self, client_id: str, client_secret: str):
-        if not client_id or not client_secret:
-            raise ValueError("Both client_id and client_secret are required")
-        self.client_id = client_id
-        self.client_secret = client_secret
+    def __init__(self):
+        if not CLIENT_ID or not CLIENT_SECRET:
+            raise ValueError("Both CLIENT_ID and CLIENT_SECRET are required in environment variables")
+        self.client_id = CLIENT_ID
+        self.client_secret = CLIENT_SECRET
         self.url = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
         self.access_token = self._get_access_token()
 
     def _get_access_token(self) -> str:
-        # Удалим случайные пробелы и символы
-        client_id = self.client_id.strip()
-        client_secret = self.client_secret.strip()
-
-        # Кодируем client_id:client_secret в base64
-        credentials = f"{client_id}:{client_secret}"
+        credentials = f"{self.client_id}:{self.client_secret}"
         encoded_credentials = base64.b64encode(credentials.encode("utf-8")).decode("utf-8")
 
         headers = {

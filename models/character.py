@@ -14,9 +14,9 @@ class Character(Base):
     name = Column(String, nullable=False)
     level = Column(Integer, default=1)
     experience = Column(Integer, default=0)
-    max_experience = Column(Integer, default=50)
+    max_experience = Column(Integer, default=50) #удалить
     current_health = Column(Integer, default=100)
-    max_health = Column(Integer, default=100)
+    max_health = Column(Integer, default=100) #удалить
     avatar = Column(String)  # Можно хранить ссылку на изображение
 
     user = relationship('User', back_populates='character')
